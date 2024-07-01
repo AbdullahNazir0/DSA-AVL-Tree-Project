@@ -8,6 +8,7 @@ struct Node
     Node<T> *left;
     Node<T> *right;
 
+    Node() {}
     Node(const T &value) : data(value), left(nullptr), right(nullptr) {}
 };
 

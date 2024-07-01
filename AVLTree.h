@@ -8,6 +8,7 @@ class AVLTree : public Tree<T>
 {
 public:
     AVLTree();
+    // public functions.
     void insert(const T &) override;
     void remove(const T &) override;
     void displayInOrder() const override;
@@ -23,6 +24,7 @@ public:
     ~AVLTree();
 
 private:
+    // private helper functions.
     void helpInsert(Node<T> *&, Node<T> *);
     void helpRemove(Node<T> *&, const T &);
     void inorder(Node<T> *) const;
@@ -38,8 +40,8 @@ private:
     void rightLeftRotate(Node<T> *&);
     void min(Node<T> *) const;
     void max(Node<T> *) const;
-    void successor(Node<T> *, const T &) const;
-    void predecessor(Node<T> *, const T &) const;
+    Node<T> *successor(Node<T> *, const T &) const;
+    Node<T> *predecessor(Node<T> *, const T &) const;
     void destroyTree(Node<T> *&);
 };
 

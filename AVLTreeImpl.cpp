@@ -131,11 +131,21 @@ void AVLTree<T>::getMax() const
 template <typename T>
 void AVLTree<T>::getSuccessor(const T &value) const
 {
+    Node<T> *successor = findSuccessor(this->root, value);
+    if (successor)
+        std::cout << "Successor of " << value << " is " << successor->data << ".\n";
+    else
+        std::cout << "No successor for " << value << " in AVL Tree.\n";
 }
 
 template <typename T>
 void AVLTree<T>::getPredecessor(const T &value) const
 {
+    Node<T> *predecessor = findPredecessor(this->root, value);
+    if (successor)
+        std::cout << "Predecessor of " << value << " is " << predecessor->data << ".\n";
+    else
+        std::cout << "No predecessor for " << value << " in AVL Tree.\n";
 }
 
 template <typename T>
@@ -162,7 +172,28 @@ void AVLTree<T>::helpInsert(Node<T> *&node, Node<T> *valueNode)
     else if (node->data < valueNode->data)
         helpInsert(node->right, valueNode);
     else
+    {
         std::cout << "Cannot insert duplicate value in AVL Tree.\n";
+        return;
+    }
+
+    int balanceFactor = findBalanceFactor(node);
+
+    // left left case
+    if (balanceFactor > 1 && valueNode->data < node->left->data)
+        rightRotate(node);
+
+    // right right case
+    if (balanceFactor < -1 && valueNode->data > node->right->data)
+        leftRotate(node);
+
+    // left right case
+    if (balanceFactor > 1 && valueNode->data > node->left->data)
+        leftRightRotate(node);
+
+    // right left case
+    if (balanceFactor < -1 && valueNode->data < node->right->data)
+        rightLeftRotate(node);
 }
 
 template <typename T>
@@ -171,40 +202,66 @@ void AVLTree<T>::helpRemove(Node<T> *&node, const T &value)
     if (!node)
         return;
 
-    if (node->data == value)
+    if (node->data > value)
+        helpRemove(node->left, value);
+    else if (node->data < value)
+        helpRemove(node->right, value);
+    else
     {
         if (!node->left && !node->right) // if leaf node
         {
+            if (node == this->root)
+                this->root = nullptr;
             delete (node);
             node = nullptr;
         }
         else if (node->left && !node->right) // if one child
         {
+            if (node == this->root)
+                this->root = node->left;
             Node<T> *nodeToDelete = node;
             node = node->left;
             delete (nodeToDelete);
         }
         else if (!node->left && node->right) // if one child
         {
+            if (node == this->root)
+                this->root = node->right;
             Node<T> *nodeToDelete = node;
             node = node->right;
             delete (nodeToDelete);
         }
         else // if two child
         {
-            Node<T> *ancestor = node->left;
-            Node<T> *current = node->right;
-            while (current)
-            {
-                ancestor = current;
-                current = current->left;
-            }
+            Node<T> *successor = node->right;
+            while (successor->left)
+                successor = successor->left;
+
+            node->data = successor->data;
+            helpRemove(node->right, successor->data);
         }
     }
-    else if (node->data > value)
-        helpRemove(this->root->left, value);
-    else
-        helpRemove(this->root->right, value);
+
+    if (!node) // if tree had only one node.
+        return;
+
+    int balanceFactor = findBalanceFactor(node);
+
+    // left left case
+    if (balanceFactor > 1 && findBalanceFactor(node->left) >= 0)
+        rightRotate(node);
+
+    // right right case
+    if (balanceFactor < -1 && findBalanceFactor(node->left) < 0)
+        leftRotate(node);
+
+    // left right case
+    if (balanceFactor > 1 && findBalanceFactor(node->right) <= 0)
+        leftRightRotate(node);
+
+    // right left case
+    if (balanceFactor < -1 && findBalanceFactor(node->right) > 0)
+        rightLeftRotate(node);
 }
 
 template <typename T>
@@ -374,10 +431,34 @@ void AVLTree<T>::max(Node<T> *node) const
 }
 
 template <typename T>
-void AVLTree<T>::successor(Node<T> *node, const T &value) const {}
+Node<T> *AVLTree<T>::successor(Node<T> *node, const T &value) const
+{
+    if (!node)
+        return (nullptr);
+
+    if (node->data <= value)
+        return (successor(node->right, value));
+    else
+    {
+        Node<T> *leftSuccessor = successor(node->left, value);
+        return (leftSuccessor ? leftSuccessor : node);
+    }
+}
 
 template <typename T>
-void AVLTree<T>::predecessor(Node<T> *node, const T &value) const {}
+Node<T> *AVLTree<T>::predecessor(Node<T> *node, const T &value) const
+{
+    if (!node)
+        return (nullptr);
+
+    if (node->data >= value)
+        return (predecessor(node->left, value));
+    else
+    {
+        Node<T> *rightPredecessor = predecessor(node->right, value);
+        return (rightPredecessor ? rightPredecessor : node);
+    }
+}
 
 template <typename T>
 void AVLTree<T>::destroyTree(Node<T> *&node)
