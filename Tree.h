@@ -14,8 +14,10 @@ public:
     virtual void displayPreOrder() const = 0;
     virtual void displayPostOrder() const = 0;
     virtual void searchValue(const T &) const = 0;
-    virtual void getTreeHeight() const = 0;
-    virtual void getNodeHeight(const T &) const = 0;
+    virtual int getTreeHeight() const = 0;
+    virtual int getNodeHeight(const T &) const = 0;
+    virtual void getMin() const = 0;
+    virtual void getMax() const = 0;
     ~Tree() {}
 
 protected:

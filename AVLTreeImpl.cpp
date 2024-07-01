@@ -1,4 +1,5 @@
 #include "AVLTree.h"
+#include <iostream>
 
 template <typename T>
 AVLTree<T>::AVLTree()
@@ -42,6 +43,7 @@ void AVLTree<T>::displayInOrder() const
     }
 
     inorder(this->root);
+    std::cout << "\n";
 }
 
 template <typename T>
@@ -54,6 +56,7 @@ void AVLTree<T>::displayPreOrder() const
     }
 
     preorder(this->root);
+    std::cout << "\n";
 }
 
 template <typename T>
@@ -66,6 +69,7 @@ void AVLTree<T>::displayPostOrder() const
     }
 
     postorder(this->root);
+    std::cout << "\n";
 }
 
 template <typename T>
@@ -76,15 +80,61 @@ void AVLTree<T>::searchValue(const T &value) const
         std::cout << "Cannot search empty AVL Tree.\n";
         return;
     }
+
+    search(this->root, value);
 }
 
 template <typename T>
-void AVLTree<T>::getTreeHeight() const
+int AVLTree<T>::getTreeHeight() const
+{
+    return (nodeHeight(this->root));
+}
+
+template <typename T>
+int AVLTree<T>::getNodeHeight(const T &value) const
+{
+    if (!this->root)
+        return (-1);
+
+    Node<T> *node = searchNode(this->root, value);
+
+    if (!node)
+        return (-1);
+    else
+        return (nodeHeight(node));
+}
+
+template <typename T>
+void AVLTree<T>::getMin() const
+{
+    if (!this->root)
+    {
+        std::cout << "No minimum, AVL Tree is empty.\n";
+        return;
+    }
+
+    min(this->root);
+}
+
+template <typename T>
+void AVLTree<T>::getMax() const
+{
+    if (!this->root)
+    {
+        std::cout << "No maximum, AVL Tree is empty.\n";
+        return;
+    }
+
+    max(this->root);
+}
+
+template <typename T>
+void AVLTree<T>::getSuccessor(const T &value) const
 {
 }
 
 template <typename T>
-void AVLTree<T>::getNodeHeight(const T &value) const
+void AVLTree<T>::getPredecessor(const T &value) const
 {
 }
 
@@ -108,7 +158,7 @@ void AVLTree<T>::helpInsert(Node<T> *&node, Node<T> *valueNode)
     }
 
     if (node->data > valueNode->data)
-        helpInsert(this->root->left, valueNode);
+        helpInsert(node->left, valueNode);
     else if (node->data < valueNode->data)
         helpInsert(node->right, valueNode);
     else
@@ -116,12 +166,12 @@ void AVLTree<T>::helpInsert(Node<T> *&node, Node<T> *valueNode)
 }
 
 template <typename T>
-void AVLTree<T>::helpRemove(Node<T> *&node, Node<T> *valueNode)
+void AVLTree<T>::helpRemove(Node<T> *&node, const T &value)
 {
     if (!node)
         return;
 
-    if (node->data == valueNode->data)
+    if (node->data == value)
     {
         if (!node->left && !node->right) // if leaf node
         {
@@ -131,7 +181,7 @@ void AVLTree<T>::helpRemove(Node<T> *&node, Node<T> *valueNode)
         else if (node->left && !node->right) // if one child
         {
             Node<T> *nodeToDelete = node;
-            node = nodle->left;
+            node = node->left;
             delete (nodeToDelete);
         }
         else if (!node->left && node->right) // if one child
@@ -151,10 +201,10 @@ void AVLTree<T>::helpRemove(Node<T> *&node, Node<T> *valueNode)
             }
         }
     }
-    else if (node->data > valueNode->data)
-        helpRemove(this->root->left, valueNode);
+    else if (node->data > value)
+        helpRemove(this->root->left, value);
     else
-        helpRemove(this->root->right, valueNode);
+        helpRemove(this->root->right, value);
 }
 
 template <typename T>
@@ -164,7 +214,7 @@ void AVLTree<T>::inorder(Node<T> *node) const
         return;
 
     inorder(node->left);
-    cout << node->data << "\n";
+    std::cout << node->data << " ";
     inorder(node->right);
 }
 
@@ -174,7 +224,7 @@ void AVLTree<T>::preorder(Node<T> *node) const
     if (!node)
         return;
 
-    cout << node->data << "\n";
+    std::cout << node->data << " ";
     preorder(node->left);
     preorder(node->right);
 }
@@ -187,11 +237,41 @@ void AVLTree<T>::postorder(Node<T> *node) const
 
     postorder(node->left);
     postorder(node->right);
-    cout << node->data << "\n";
+    std::cout << node->data << " ";
 }
 
 template <typename T>
-void AVLTree<T>::search(Node<T> *node, const T &value)
+Node<T> *AVLTree<T>::searchNode(Node<T> *node, const T &value) const
+{
+    if (!node)
+        return (nullptr);
+
+    if (node->data == value)
+        return (node);
+    else if (node->data > value)
+        searchNode(node->left, value);
+    else
+        searchNode(node->right, value);
+}
+
+template <typename T>
+int AVLTree<T>::nodeHeight(Node<T> *node) const
+{
+    if (!node)
+        // if you want to calculate height acc to number of nodes instead of edges, return (0);
+        return (-1);
+
+    int leftHeight = nodeHeight(node->left);
+    int rightHeight = nodeHeight(node->right);
+
+    if (leftHeight >= rightHeight)
+        return (leftHeight + 1);
+    else
+        return (rightHeight + 1);
+}
+
+template <typename T>
+void AVLTree<T>::search(Node<T> *node, const T &value) const
 {
     if (!node)
         return;
@@ -203,6 +283,101 @@ void AVLTree<T>::search(Node<T> *node, const T &value)
     else
         search(node->right, value);
 }
+
+template <typename T>
+int AVLTree<T>::findBalanceFactor(Node<T> *node) const
+{
+    if (!node)
+        return (0);
+
+    return (nodeHeight(node->left) - nodeHeight(node->right));
+}
+
+template <typename T>
+void AVLTree<T>::leftRotate(Node<T> *&node)
+{
+    if (!node)
+        return;
+
+    Node<T> *pivot = node->right;
+    Node<T> *subTree = pivot->left;
+
+    pivot->left = node;
+    node->right = subTree;
+
+    if (node == this->root)
+        this->root = pivot;
+
+    node = pivot;
+}
+
+template <typename T>
+void AVLTree<T>::rightRotate(Node<T> *&node)
+{
+    if (!node)
+        return;
+
+    Node<T> *pivot = node->left;
+    Node<T> *subTree = pivot->right;
+
+    pivot->right = node;
+    node->left = subTree;
+
+    if (node == this->root)
+        this->root = pivot;
+
+    node = pivot;
+}
+
+template <typename T>
+void AVLTree<T>::leftRightRotate(Node<T> *&node)
+{
+    if (!node)
+        return;
+
+    leftRotate(node->left);
+    rightRotate(node);
+}
+
+template <typename T>
+void AVLTree<T>::rightLeftRotate(Node<T> *&node)
+{
+    if (!node)
+        return;
+
+    rightRotate(node->right);
+    leftRotate(node);
+}
+
+template <typename T>
+void AVLTree<T>::min(Node<T> *node) const
+{
+    if (!node->left)
+    {
+        std::cout << "The minimum is " << node->data << "\n";
+        return;
+    }
+
+    return (min(node->left));
+}
+
+template <typename T>
+void AVLTree<T>::max(Node<T> *node) const
+{
+    if (!node->right)
+    {
+        std::cout << "The maximum is " << node->data << "\n";
+        return;
+    }
+
+    return (max(node->right));
+}
+
+template <typename T>
+void AVLTree<T>::successor(Node<T> *node, const T &value) const {}
+
+template <typename T>
+void AVLTree<T>::predecessor(Node<T> *node, const T &value) const {}
 
 template <typename T>
 void AVLTree<T>::destroyTree(Node<T> *&node)
