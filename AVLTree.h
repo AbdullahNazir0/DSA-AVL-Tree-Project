@@ -21,6 +21,7 @@ public:
     void getMax() const override;
     void getSuccessor(const T &) const;
     void getPredecessor(const T &) const;
+    int getDiameter() const;
     ~AVLTree();
 
 private:
@@ -42,6 +43,7 @@ private:
     void max(Node<T> *) const;
     Node<T> *successor(Node<T> *, const T &) const;
     Node<T> *predecessor(Node<T> *, const T &) const;
+    int diameter(Node<T> *) const;
     void destroyTree(Node<T> *&);
 };
 

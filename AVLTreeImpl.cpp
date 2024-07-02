@@ -1,6 +1,16 @@
 #include "AVLTree.h"
 #include <iostream>
 
+int maxInt(int a, int b)
+{
+    return (a > b ? a : b);
+}
+
+int maxInt(int a, int b, int c)
+{
+    return maxInt(maxInt(a, b), c);
+}
+
 template <typename T>
 AVLTree<T>::AVLTree()
 {
@@ -131,9 +141,9 @@ void AVLTree<T>::getMax() const
 template <typename T>
 void AVLTree<T>::getSuccessor(const T &value) const
 {
-    Node<T> *successor = findSuccessor(this->root, value);
-    if (successor)
-        std::cout << "Successor of " << value << " is " << successor->data << ".\n";
+    Node<T> *succ = successor(this->root, value);
+    if (succ)
+        std::cout << "Successor of " << value << " is " << succ->data << ".\n";
     else
         std::cout << "No successor for " << value << " in AVL Tree.\n";
 }
@@ -141,11 +151,20 @@ void AVLTree<T>::getSuccessor(const T &value) const
 template <typename T>
 void AVLTree<T>::getPredecessor(const T &value) const
 {
-    Node<T> *predecessor = findPredecessor(this->root, value);
-    if (successor)
-        std::cout << "Predecessor of " << value << " is " << predecessor->data << ".\n";
+    Node<T> *pred = predecessor(this->root, value);
+    if (pred)
+        std::cout << "Predecessor of " << value << " is " << pred->data << ".\n";
     else
         std::cout << "No predecessor for " << value << " in AVL Tree.\n";
+}
+
+template <typename T>
+int AVLTree<T>::getDiameter() const
+{
+    if (!this->root)
+        return (-1);
+
+    return (diameter(this->root));
 }
 
 template <typename T>
@@ -458,6 +477,23 @@ Node<T> *AVLTree<T>::predecessor(Node<T> *node, const T &value) const
         Node<T> *rightPredecessor = predecessor(node->right, value);
         return (rightPredecessor ? rightPredecessor : node);
     }
+}
+
+template <typename T>
+int AVLTree<T>::diameter(Node<T> *node) const
+{
+    if (!node)
+        return (0);
+
+    int leftHeight = nodeHeight(node->left);
+    int rightHeight = nodeHeight(node->right);
+
+    int leftDiameter = diameter(node->left);
+    int rightDiameter = diameter(node->right);
+
+    int rootDiameter = leftHeight + rightHeight + 1;
+
+    return maxInt(leftDiameter, rightDiameter, rootDiameter);
 }
 
 template <typename T>
