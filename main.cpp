@@ -160,10 +160,10 @@ void mainPanel()
         case 11:
         {
             system("cls");
-            cout << "-------- Welcome to Successor Menu --------\n";
-            cout << "Enter the node value to find its successor: ";
+            cout << "-------- Welcome to Predecessor Menu --------\n";
+            cout << "Enter the node value to find its predecessor: ";
             cin >> value;
-            avlTree.getSuccessor(value);
+            avlTree.getPredecessor(value);
             cout << "Press any key to continue...";
             temp = cin.get();
             cin.ignore(100000, '\n');
@@ -172,10 +172,10 @@ void mainPanel()
         case 12:
         {
             system("cls");
-            cout << "-------- Welcome to Predecessor Menu --------\n";
-            cout << "Enter the node value to find its predecessor: ";
+            cout << "-------- Welcome to Successor Menu --------\n";
+            cout << "Enter the node value to find its successor: ";
             cin >> value;
-            avlTree.getPredecessor(value);
+            avlTree.getSuccessor(value);
             cout << "Press any key to continue...";
             temp = cin.get();
             cin.ignore(100000, '\n');
